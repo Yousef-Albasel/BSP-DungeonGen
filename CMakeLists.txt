@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(HEARTH-AND-HARVEST)
+project(THERECLAIMING)
 
 if (MSVC)
     add_compile_options(/FS)
@@ -13,18 +13,11 @@ add_definitions(-DGLEW_STATIC)
 # Automatically find all source and header files
 file(GLOB_RECURSE SOURCES 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/character/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/environment/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/engine/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 
 file(GLOB_RECURSE HEADERS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/character/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/environment/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/engine/*.h"
-
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
 )
 
@@ -34,20 +27,7 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 # Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engine
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/environment
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/environment/sky
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/environment/Water
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/environment/Grass
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/environment/FoliageManager
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/environment/LSystemTree
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/PostProcess
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/WorldItem  
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/Inventory  
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/character
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vendor
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/dep/glfw/include
     ${CMAKE_CURRENT_SOURCE_DIR}/dep/glew/include
     ${CMAKE_CURRENT_SOURCE_DIR}/dep/enet-1.3.18/include

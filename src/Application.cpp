@@ -4,14 +4,14 @@
 #include "Renderer.h"
 #include <vector>
 #include <iostream>
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "Vendor/imgui/imgui.h"
+#include "Vendor/imgui/imgui_impl_glfw.h"
+#include "Vendor/imgui/imgui_impl_opengl3.h"
 
 int main(void) {
-    std::cout << "=== Hearth and Harvest ===" << std::endl;
+    std::cout << "=== The Reclaiming ===" << std::endl;
 
-        Window window(1280, 720, "Hearth and Harvest");
+        Window window(1280, 720, "The Reclaiming");
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
