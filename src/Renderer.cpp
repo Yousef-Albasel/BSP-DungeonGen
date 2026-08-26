@@ -4,7 +4,8 @@
 #include <cmath>
 #include <iostream>
 #include <exception>
-
+#include "level/Level.h"
+#include "level/RoomVisualizer.h"
 Renderer::Renderer() 
     : camera(glm::vec3(10.0f, 5.0f, 30.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 {
@@ -18,6 +19,15 @@ void Renderer::Init() {
     std::cout << "Current working directory: " << std::filesystem::current_path() << std::endl;
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
+    Level level(50, 50);
+    level.printRooms();
+    // --- Bake the dungeon to an image ---
+    RoomVisualizer viz;
+    viz.cellSize   = 12;           // pixels per grid cell
+    viz.drawGrid   = true;         // subtle grid lines
+    viz.saturation = 0.55f;        // color richness
+    viz.lightness  = 0.60f;        // color brightness
+    viz.visualize(level.getBsp(), "dungeon_map.png");
 
     camera.setCameraPos(glm::vec3(10.0f, 5.0f, 30.0f));
 }
@@ -35,6 +45,7 @@ void Renderer::Render() {
     if (deltaTime > maxDeltaTime) {
         deltaTime = maxDeltaTime;
     }
+
 }
 
 void Renderer::Clean() {

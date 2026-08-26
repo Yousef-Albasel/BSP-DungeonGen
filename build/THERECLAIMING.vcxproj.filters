@@ -52,6 +52,12 @@
     <ClCompile Include="F:\The Reclaming\src\Vendor\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="F:\The Reclaming\src\level\RoomVisualizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\The Reclaming\src\level\stb_image_write_impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="F:\The Reclaming\src\Renderer.h">
@@ -115,6 +121,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="F:\The Reclaming\src\Vendor\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\The Reclaming\src\Vendor\stb_image_write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\The Reclaming\src\level\BinarySpacePartition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\The Reclaming\src\level\RoomVisualizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

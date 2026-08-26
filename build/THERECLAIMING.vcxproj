@@ -401,6 +401,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="F:\The Reclaming\src\Vendor\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="F:\The Reclaming\src\Vendor\imgui\imgui_tables.cpp" />
     <ClCompile Include="F:\The Reclaming\src\Vendor\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="F:\The Reclaming\src\level\RoomVisualizer.cpp" />
+    <ClCompile Include="F:\The Reclaming\src\level\stb_image_write_impl.cpp" />
     <ClInclude Include="F:\The Reclaming\src\Renderer.h" />
     <ClInclude Include="F:\The Reclaming\src\Vendor\Camera.h" />
     <ClInclude Include="F:\The Reclaming\src\Vendor\ElementBuffer.h" />
@@ -422,6 +424,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="F:\The Reclaming\src\Vendor\imgui\imstb_textedit.h" />
     <ClInclude Include="F:\The Reclaming\src\Vendor\imgui\imstb_truetype.h" />
     <ClInclude Include="F:\The Reclaming\src\Vendor\stb_image.h" />
+    <ClInclude Include="F:\The Reclaming\src\Vendor\stb_image_write.h" />
+    <ClInclude Include="F:\The Reclaming\src\level\BinarySpacePartition.h" />
+    <ClInclude Include="F:\The Reclaming\src\level\RoomVisualizer.h" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
