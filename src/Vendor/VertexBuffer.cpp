@@ -13,6 +13,7 @@ VertexBuffer::~VertexBuffer(){
     if (m_RendererID) GLCall(glDeleteBuffers(1, &m_RendererID));
 };
 
+
 VertexBuffer::VertexBuffer(VertexBuffer&& other) noexcept
     : m_RendererID(other.m_RendererID) {
     other.m_RendererID = 0;

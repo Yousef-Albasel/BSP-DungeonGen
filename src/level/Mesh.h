@@ -20,6 +20,11 @@ public:
     Mesh(    const std::vector<float>& vertices,
     const std::vector<unsigned int>& indices
     );
+    Mesh(
+    const std::vector<float>& vertices,
+    const std::vector<unsigned int>& indices,
+    const VertexBufferLayout& layout
+    );
 
     const std::vector<float>& getVertices() const
     {

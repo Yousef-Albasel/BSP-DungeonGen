@@ -5,8 +5,17 @@
 #include "Room.h"
 
 
-inline int MINIMUM_ROOM_SIZE = 7;
-inline int MAX_ROOM_SIZE = 10;
+inline int MINIMUM_ROOM_SIZE = 15;
+inline int MAX_ROOM_SIZE = 30;
+inline int CORRIDOR_WIDTH = 3;
+
+// Gap left as empty (unassigned, value 0) space between two sibling
+// partitions after a split. Without this, rooms/corridors from
+// neighboring partitions sit flush against each other with zero
+// empty cells between them, so generateWallMesh() has nothing to
+// detect a boundary against and silently skips the wall there.
+inline int PARTITION_GAP = 2;
+
 struct Point {
     int x, y;
     Point() : x(0), y(0) {}
@@ -20,6 +29,15 @@ struct Partition
     Partition* left;
     Partition* right;
     int roomId = -1;
+
+    // The center of one real room somewhere within this partition's
+    // subtree. For a leaf this is set to the room's own center. For
+    // an internal node it's inherited from one of its children once
+    // both are generated. Corridors must connect these points, never
+    // getCenter() on an internal node - that only returns the center
+    // of the bounding box, which usually lands in the empty gap
+    // between children rather than inside any actual room.
+    Point connectorPoint;
 
     Partition(int x, int y, int width, int height)
         : x(x),
@@ -50,11 +68,13 @@ private:
         int width = partition->width;
         int height = partition->height;
 
+        // Splitting requires room for two child partitions of at
+        // least MINIMUM_ROOM_SIZE plus the gap between them.
         bool canSplitVertically =
-            width > MINIMUM_ROOM_SIZE * 2;
+            width > MINIMUM_ROOM_SIZE * 2 + PARTITION_GAP;
 
         bool canSplitHorizontally =
-            height > MINIMUM_ROOM_SIZE * 2;
+            height > MINIMUM_ROOM_SIZE * 2 + PARTITION_GAP;
 
         if (!canSplitVertically && !canSplitHorizontally)
         {
@@ -66,7 +86,7 @@ private:
         if (canSplitVertically && !canSplitHorizontally)
         {
             int split =
-                rand() % (width - MINIMUM_ROOM_SIZE * 2)
+                rand() % (width - MINIMUM_ROOM_SIZE * 2 - PARTITION_GAP)
                 + MINIMUM_ROOM_SIZE;
 
             partition->left = new Partition(
@@ -77,9 +97,9 @@ private:
             );
 
             partition->right = new Partition(
-                partition->x + split,
+                partition->x + split + PARTITION_GAP,
                 partition->y,
-                width - split,
+                width - split - PARTITION_GAP,
                 height
             );
         }
@@ -88,7 +108,7 @@ private:
         else if (!canSplitVertically && canSplitHorizontally)
         {
             int split =
-                rand() % (height - MINIMUM_ROOM_SIZE * 2)
+                rand() % (height - MINIMUM_ROOM_SIZE * 2 - PARTITION_GAP)
                 + MINIMUM_ROOM_SIZE;
 
             partition->left = new Partition(
@@ -100,9 +120,9 @@ private:
 
             partition->right = new Partition(
                 partition->x,
-                partition->y + split,
+                partition->y + split + PARTITION_GAP,
                 width,
-                height - split
+                height - split - PARTITION_GAP
             );
         }
 
@@ -115,7 +135,7 @@ private:
             if (randomDirection == 0)
             {
                 int split =
-                    rand() % (width - MINIMUM_ROOM_SIZE * 2)
+                    rand() % (width - MINIMUM_ROOM_SIZE * 2 - PARTITION_GAP)
                     + MINIMUM_ROOM_SIZE;
 
                 partition->left = new Partition(
@@ -126,9 +146,9 @@ private:
                 );
 
                 partition->right = new Partition(
-                    partition->x + split,
+                    partition->x + split + PARTITION_GAP,
                     partition->y,
-                    width - split,
+                    width - split - PARTITION_GAP,
                     height
                 );
             }
@@ -137,7 +157,7 @@ private:
             else
             {
                 int split =
-                    rand() % (height - MINIMUM_ROOM_SIZE * 2)
+                    rand() % (height - MINIMUM_ROOM_SIZE * 2 - PARTITION_GAP)
                     + MINIMUM_ROOM_SIZE;
 
                 partition->left = new Partition(
@@ -149,31 +169,58 @@ private:
 
                 partition->right = new Partition(
                     partition->x,
-                    partition->y + split,
+                    partition->y + split + PARTITION_GAP,
                     width,
-                    height - split
+                    height - split - PARTITION_GAP
                 );
             }
         }
 
         generateRooms(partition->left);
         generateRooms(partition->right);
+
+        // Inherit a real room's center from one of the children so
+        // any corridor connecting to *this* partition (from further
+        // up the tree) still terminates inside an actual room rather
+        // than in the empty gap between its children.
+        partition->connectorPoint =
+            (rand() % 2 == 0)
+                ? partition->left->connectorPoint
+                : partition->right->connectorPoint;
     }
 
     void drawCorridor(Point p1, Point p2)
     {
+        int halfWidth = CORRIDOR_WIDTH / 2;
+
+        auto carve = [&](int cx, int cy)
+        {
+            for (int dy = -halfWidth; dy <= halfWidth; ++dy)
+            {
+                for (int dx = -halfWidth; dx <= halfWidth; ++dx)
+                {
+                    int nx = cx + dx;
+                    int ny = cy + dy;
+                    if (ny < 0 || ny >= (int)space.size()) continue;
+                    if (nx < 0 || nx >= (int)space[0].size()) continue;
+                    if (space[ny][nx] == 0)
+                        space[ny][nx] = -1;
+                }
+            }
+        };
+
         int x = p1.x;
         int y = p1.y;
 
         while (x != p2.x) {
-            if (space[y][x] == 0) space[y][x] = -1;
+            carve(x, y);
             x += (p2.x > p1.x) ? 1 : -1;
         }
         while (y != p2.y) {
-            if (space[y][x] == 0) space[y][x] = -1;
+            carve(x, y);
             y += (p2.y > p1.y) ? 1 : -1;
         }
-        if (space[p2.y][p2.x] == 0) space[p2.y][p2.x] = -1;
+        carve(p2.x, p2.y);
     }
 
     void generateCorridors(Partition* partition)
@@ -184,8 +231,8 @@ private:
         generateCorridors(partition->left);
         generateCorridors(partition->right);
 
-        Point p1 = partition->left->getCenter();
-        Point p2 = partition->right->getCenter();
+        Point p1 = partition->left->connectorPoint;
+        Point p2 = partition->right->connectorPoint;
 
         drawCorridor(p1, p2);
     }
@@ -197,16 +244,10 @@ private:
         if (partition == nullptr)
             return;
 
-        // Only draw leaf partitions
-        if (partition->left == nullptr &&
-            partition->right == nullptr)
+        if (partition->left == nullptr && partition->right == nullptr)
         {
-            roomCount++;
-            int roomId = roomCount;
+            int roomId = partition->roomId; // set earlier in AssignRoom
 
-            // Inset by 1 cell so neighboring rooms don't visually
-            // merge into a single solid block. This is purely a
-            // rendering choice - the partition tree itself is untouched.
             for (int y = partition->y + 1;
                  y < partition->y + partition->height - 1;
                  y++)
@@ -218,7 +259,6 @@ private:
                     space[y][x] = roomId;
                 }
             }
-
             return;
         }
 
@@ -240,6 +280,7 @@ private:
         rooms.push_back(newRoom);
 
         partition->roomId = roomCount;
+        partition->connectorPoint = partition->getCenter(); // real room center
     }
 
     void printSpace()
@@ -276,7 +317,6 @@ public:
         drawPartition(root);
         generateCorridors(root);
 
-        printSpace();
     }
 
     // --- Accessors for the visualizer ---

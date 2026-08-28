@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Mesh.h"
 
 class Room
 {
@@ -23,33 +22,5 @@ public:
     int getWidth() const { return width; }
     int getHeight() const { return height; }
 
-    Mesh createFloorMesh() const
-    {
-        std::vector<float> vertices = {
-            // x, y, z
 
-            static_cast<float>(x),
-            0.0f,
-            static_cast<float>(y),
-
-            static_cast<float>(x + width),
-            0.0f,
-            static_cast<float>(y),
-
-            static_cast<float>(x + width),
-            0.0f,
-            static_cast<float>(y + height),
-
-            static_cast<float>(x),
-            0.0f,
-            static_cast<float>(y + height)
-        };
-
-        std::vector<unsigned int> indices = {
-            0, 1, 2,
-            2, 3, 0
-        };
-
-        return Mesh(vertices, indices);
-    }
 };

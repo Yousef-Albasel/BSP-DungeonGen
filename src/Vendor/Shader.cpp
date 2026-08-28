@@ -90,10 +90,17 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 }
 
 unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
-    // These strings are the source code for each shader
     unsigned int program = glCreateProgram();
     unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
     unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+
+    if (vs == 0 || fs == 0) {
+        std::cout << "Failed to compile shader program!" << std::endl;
+        if (vs == 0) std::cout << "  - Vertex shader compilation failed" << std::endl;
+        if (fs == 0) std::cout << "  - Fragment shader compilation failed" << std::endl;
+        glDeleteProgram(program);
+        return 0;
+    }
 
     GLCall(glAttachShader(program, vs));
     GLCall(glAttachShader(program, fs));
@@ -105,10 +112,8 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
     if (linkStatus == GL_FALSE) {
         int length;
         GLCall(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length));
-
         char* message = (char*)alloca(length * sizeof(char));
         GLCall(glGetProgramInfoLog(program, length, &length, message));
-
         std::cerr << "Failed to link shader program: " << message << std::endl;
     }
 
@@ -119,98 +124,7 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
 
     return program;
 }
-// Replace your CreateTessellationShader method with this fixed version:
 
-unsigned int Shader::CreateTessellationShader(const std::string& vertexPath, const std::string& fragmentPath,
-    const std::string& tcsPath, const std::string& tesPath) {
-
-    // Load shader sources from files - use ParseShader for combined vertex/fragment file
-    ShaderProgramSource vertexFragmentSource = ParseShader(vertexPath);
-    std::string tcsSource = LoadShaderFromFile(tcsPath);
-    std::string tesSource = LoadShaderFromFile(tesPath);
-
-    // Validate that all sources were loaded
-    if (vertexFragmentSource.VertexSource.empty()) {
-        std::cout << "Failed to load vertex shader from: " << vertexPath << std::endl;
-        return 0;
-    }
-    if (vertexFragmentSource.FragmentSource.empty()) {
-        std::cout << "Failed to load fragment shader from: " << vertexPath << std::endl;
-        return 0;
-    }
-    if (tcsSource.empty()) {
-        std::cout << "Failed to load tessellation control shader from: " << tcsPath << std::endl;
-        return 0;
-    }
-    if (tesSource.empty()) {
-        std::cout << "Failed to load tessellation evaluation shader from: " << tesPath << std::endl;
-        return 0;
-    }
-
-    // Create program
-    unsigned int program = glCreateProgram();
-
-    // Compile all shaders
-    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexFragmentSource.VertexSource);
-    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, vertexFragmentSource.FragmentSource);
-    unsigned int tcs = CompileShader(GL_TESS_CONTROL_SHADER, tcsSource);
-    unsigned int tes = CompileShader(GL_TESS_EVALUATION_SHADER, tesSource);
-
-    // Check if all shaders compiled successfully
-    if (vs == 0 || fs == 0 || tcs == 0 || tes == 0) {
-        std::cout << "Failed to compile one or more tessellation shaders!" << std::endl;
-        if (vs == 0) std::cout << "  - Vertex shader compilation failed" << std::endl;
-        if (fs == 0) std::cout << "  - Fragment shader compilation failed" << std::endl;
-        if (tcs == 0) std::cout << "  - Tessellation control shader compilation failed" << std::endl;
-        if (tes == 0) std::cout << "  - Tessellation evaluation shader compilation failed" << std::endl;
-
-        GLCall(glDeleteProgram(program));
-        return 0;
-    }
-
-    // Attach all shaders
-    GLCall(glAttachShader(program, vs));
-    GLCall(glAttachShader(program, fs));
-    GLCall(glAttachShader(program, tcs));
-    GLCall(glAttachShader(program, tes));
-
-    // Link program
-    GLCall(glLinkProgram(program));
-
-    // Check link status
-    int linkStatus;
-    GLCall(glGetProgramiv(program, GL_LINK_STATUS, &linkStatus));
-
-    if (linkStatus == GL_FALSE) {
-        int length;
-        GLCall(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length));
-
-        char* message = (char*)alloca(length * sizeof(char));
-        GLCall(glGetProgramInfoLog(program, length, &length, message));
-
-        std::cerr << "Failed to link tessellation shader program: " << message << std::endl;
-
-        // Clean up and return 0
-        GLCall(glDeleteProgram(program));
-        GLCall(glDeleteShader(vs));
-        GLCall(glDeleteShader(fs));
-        GLCall(glDeleteShader(tcs));
-        GLCall(glDeleteShader(tes));
-        return 0;
-    }
-
-    // Validate program
-    glValidateProgram(program);
-
-    // Clean up individual shaders
-    GLCall(glDeleteShader(vs));
-    GLCall(glDeleteShader(fs));
-    GLCall(glDeleteShader(tcs));
-    GLCall(glDeleteShader(tes));
-
-    std::cout << "Tessellation shader program created successfully!" << std::endl;
-    return program;
-}
 int Shader::GetUniformLocation(const std::string name) {
     if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
         return m_UniformLocationCache[name];

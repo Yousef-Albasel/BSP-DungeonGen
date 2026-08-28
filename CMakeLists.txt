@@ -13,12 +13,14 @@ add_definitions(-DGLEW_STATIC)
 # Automatically find all source and header files
 file(GLOB_RECURSE SOURCES 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/level/*.cpp"    
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 
 file(GLOB_RECURSE HEADERS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
+
 )
 
 # Create executable

@@ -22,6 +22,7 @@ Texture::Texture(const char* path): filepath(path),m_RendererID(0), m_Width(0), 
         if (m_BPP == 1) format = GL_RED;
         else if (m_BPP == 3) format = GL_RGB;
         else if (m_BPP == 4) format = GL_RGBA;
+        GLCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
         GLCall(glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, format, GL_UNSIGNED_BYTE, data));
         GLCall(glGenerateMipmap(GL_TEXTURE_2D));
     }
