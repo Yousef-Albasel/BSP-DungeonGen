@@ -37,7 +37,7 @@ in vec3 v_FragPos;
 uniform sampler2D u_Texture;
 uniform sampler2D normalMap;
 
-uniform vec3 u_LightPosition;
+uniform vec3 u_LightDirection;
 uniform vec3 u_LightColor;
 uniform vec3 u_AmbientColor;
 uniform vec3 u_ViewPosition;
@@ -82,7 +82,7 @@ void main()
     // Light direction
     // --------------------------------------------------
 
-    vec3 L = normalize(u_LightPosition - v_FragPos);
+    vec3 L = normalize(-u_LightDirection);
 
 
     // --------------------------------------------------

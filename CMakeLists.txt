@@ -14,6 +14,7 @@ add_definitions(-DGLEW_STATIC)
 file(GLOB_RECURSE SOURCES 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/level/*.cpp"    
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/level/renderer/*.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 

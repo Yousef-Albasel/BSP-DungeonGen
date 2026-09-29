@@ -55,6 +55,9 @@
     <ClCompile Include="F:\The Reclaming\src\level\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="F:\The Reclaming\src\level\renderer\LevelMeshGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="F:\The Reclaming\src\Renderer.h">
@@ -133,6 +136,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="F:\The Reclaming\src\level\Room.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\The Reclaming\src\level\renderer\LevelMeshGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

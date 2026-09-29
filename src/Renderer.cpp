@@ -5,6 +5,7 @@
 #include <iostream>
 #include <exception>
 #include "level/Level.h"
+#include "level/renderer/LevelMeshGenerator.h"
 #include "Vendor/Texture.h"
 Renderer::Renderer() 
     : camera(glm::vec3(10.0f, 5.0f, 30.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -30,19 +31,19 @@ void Renderer::Init() {
     glEnable(GL_DEPTH_TEST);
     
     level = std::make_unique<Level>(100, 100);
-    levelMesh = std::make_unique<Mesh>(level->generateFloorMesh());
+    levelMesh = std::make_unique<Mesh>(LevelMeshGenerator::generateFloorMesh(level->getBsp()));
     floorTexture = std::make_unique<Texture>("../src/res/assets/textures/floor.png");
     floorNormalTexture = std::make_unique<Texture>("../src/res/assets/textures/floor_normal.png");
-    corridorMesh = std::make_unique<Mesh>(level->generateCorridorMesh());
-    wallMesh = std::make_unique<Mesh>(level->generateWallMesh());
+    corridorMesh = std::make_unique<Mesh>(LevelMeshGenerator::generateCorridorMesh(level->getBsp()));
+    wallMesh = std::make_unique<Mesh>(LevelMeshGenerator::generateWallMesh(level->getBsp()));
     wallShader = std::make_unique<Shader>("../src/res/assets/shaders/wall.shader");
-    floorShader = std::make_unique<Shader>("../src/res/assets/shaders/floor.shader");
+    floorShader = std::make_unique<Shader>("../src/res/assets/shaders/floor.shader");   
     wallTexture = std::make_unique<Texture>(
         "../src/res/assets/textures/wall.png");
     wallNormalTexture = std::make_unique<Texture>(
         "../src/res/assets/textures/dungeon_wall_normal_map.png");
-    
 
+    
     camera.setCameraPos(glm::vec3(10.0f, 5.0f, 30.0f));
 }
 void Renderer::Render() {
@@ -59,7 +60,6 @@ void Renderer::Render() {
         deltaTime = maxDeltaTime;
     }
 
-    if (wallShader && floorShader && levelMesh && corridorMesh && wallMesh) {
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 1000.0f);
@@ -70,8 +70,8 @@ void Renderer::Render() {
         floorShader->SetUniformMat4f("u_Model", model);
 
         floorShader->SetUniform3f(
-            "u_LightPosition",
-            lightPosition.x, lightPosition.y, lightPosition.z);
+            "u_LightDirection",
+            lightDirection.x, lightDirection.y, lightDirection.z);
 
         floorShader->SetUniform3f(
             "u_LightColor",
@@ -108,9 +108,9 @@ void Renderer::Render() {
         // ---- Walls ----
         wallShader->Bind();
         wallShader->setMVP(model, view, projection);
-        wallShader->SetUniformMat4f("u_Model", model); // <-- was missing; fixes NaN tangent basis
+        wallShader->SetUniformMat4f("u_Model", model);
 
-        wallShader->SetUniform3f("u_LightPosition", lightPosition.x, lightPosition.y, lightPosition.z);
+        wallShader->SetUniform3f("u_LightDirection", lightDirection.x, lightDirection.y, lightDirection.z);
         wallShader->SetUniform3f("u_LightColor", lightColor.x, lightColor.y, lightColor.z);
         wallShader->SetUniform3f("u_AmbientColor", ambientColor.x, ambientColor.y, ambientColor.z);
         wallShader->SetUniform3f(
@@ -130,18 +130,18 @@ void Renderer::Render() {
 
         wallTexture->Unbind();
         wallNormalTexture->Unbind();
+
         wallShader->Unbind();
-    }
+
 }
 void Renderer::Clean() {
-    // Must run before glfwDestroyWindow() / glfwTerminate().
     floorTexture.reset();
     floorShader.reset();
     wallShader.reset();
-
     wallMesh.reset();
     corridorMesh.reset();
     levelMesh.reset();
+
 
     level.reset();
 }
@@ -227,7 +227,6 @@ void Renderer::ProcessMouseInput(GLFWwindow* window, const float& dt) {
 
 void Renderer::RenderDebugUI(float deltaTime) {
     if (!showDebugWindow) return;
-
     frameCount++;
     fpsTimer += deltaTime;
     if (fpsTimer >= 1.0f) {
@@ -264,8 +263,8 @@ void Renderer::RenderDebugUI(float deltaTime) {
     if (ImGui::CollapsingHeader("Lighting", ImGuiTreeNodeFlags_DefaultOpen))
 {
     ImGui::DragFloat3(
-        "Light Position",
-        &lightPosition.x,
+        "Light Direction",
+        &lightDirection.x,
         0.1f);
 
     ImGui::ColorEdit3(
@@ -281,7 +280,11 @@ void Renderer::RenderDebugUI(float deltaTime) {
         &specularStrength,
         0.0f,
         2.0f);
-
+    ImGui::RadioButton("Debug Mode: Off", &debugMode, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("Debug Mode: Normals", &debugMode, 1);
+    wallShader->Bind();
+    wallShader->SetUniform1i("u_DebugMode", debugMode);
     ImGui::SliderFloat(
         "Shininess",
         &shininess,
@@ -289,6 +292,7 @@ void Renderer::RenderDebugUI(float deltaTime) {
         256.0f,
         "%.0f",
         ImGuiSliderFlags_Logarithmic);
+
     }
 
     ImGui::End();

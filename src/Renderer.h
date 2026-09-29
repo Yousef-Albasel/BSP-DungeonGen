@@ -37,6 +37,8 @@ private:
     std::unique_ptr<Texture> floorNormalTexture;
     std::unique_ptr<Texture> wallTexture;
     std::unique_ptr<Texture> wallNormalTexture;
+
+    std::unique_ptr<Mesh> columnMesh;
     // Camera
     Camera camera;
     float cameraDistance = 8.0f;
@@ -52,10 +54,12 @@ private:
     float fpsTimer = 0.0f;
     int frameCount = 0;
     float currentFPS = 0.0f;
-    glm::vec3 lightPosition = {10.0f, 10.0f, 10.0f};
-    glm::vec3 lightColor = {1.0f, 1.0f, 1.0f};
-    glm::vec3 ambientColor = {0.2f, 0.2f, 0.2f};
+    glm::vec3 lightDirection = {-0.3f, -1.0f, -0.3f};
+    glm::vec3 lightColor = {1.0f, 0.95f, 0.85f};
+    glm::vec3 ambientColor = {0.35f, 0.3f, 0.25f};
+    int debugMode = 0; // 0: Off, 1: Normals
 
     float shininess = 32.0f;
     float specularStrength = 0.5f;
+
 };
